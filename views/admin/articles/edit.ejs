@@ -8,7 +8,8 @@
     </div>
 
     <div class="card-body">
-      <form method="POST" action="/articles/save">
+      <form method="POST" action="/articles/update">
+        <input type="hidden" value="<%= article.id %>" name="id">
         <input
           class="form-control"
           type="text"
@@ -23,12 +24,18 @@
           name="body"
           cols="30"
           rows="10"
-        ><%= article.body %></textarea>
+        >
+<%= article.body %></textarea
+        >
         <br />
         <label>Categorias</label>
         <select name="category" class="form-control">
-          <% categories.forEach((category) => { %>
+          <% categories.forEach((category) => { %> 
+          <%if(category.id == article.categoryId) {%>
+          <option value="<%= category.id %>" selected><%= category.title %></option>
+          <%} else {%>
           <option value="<%= category.id %>"><%= category.title %></option>
+          <%}%> 
           <%})%>
         </select>
         <br />
@@ -37,7 +44,6 @@
     </div>
   </div>
 </div>
-
 
 <%- include ../../partials/footer.ejs %>
 <script src="/tinymce/tinymce.min.js"></script>

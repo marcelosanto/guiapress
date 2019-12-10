@@ -55,7 +55,7 @@ router.post("/articles/delete", (req, res) => {
 })
 
 router.get("/admin/articles/edit/:id", (req, res) => {
-  let id = req.params.id
+  let { id } = req.params
   Article.findByPk(id)
     .then(article => {
       if (article !== undefined) {
@@ -69,6 +69,57 @@ router.get("/admin/articles/edit/:id", (req, res) => {
     .catch(err => {
       res.redirect("/")
     })
+})
+
+router.post("/articles/update", (req, res) => {
+  let { id, title, body, category } = req.body
+
+  Article.update(
+    { title, body, categoryId: category, slug: slugify(title) },
+    {
+      where: {
+        id: id
+      }
+    }
+  )
+    .then(() => {
+      res.redirect("/admin/articles")
+    })
+    .catch(err => {
+      res.redirect("/")
+    })
+})
+
+router.get("/articles/page/:num", (req, res) => {
+  let page = req.params.num
+  let offset = 0
+
+  if (isNaN(page) || page === 1) {
+    offset = 0
+  } else {
+    offset = parseInt(page) * 4
+  }
+
+  Article.findAndCountAll({
+    limit: 4,
+    offset: offset
+  }).then(articles => {
+    let next
+    if (offset + 4 >= articles.count) {
+      next = false
+    } else {
+      next = true
+    }
+
+    let result = {
+      next,
+      articles
+    }
+
+    Category.findAll().then(categories => {
+      res.render('admin/articles/page', { result, categories })
+    })
+  })
 })
 
 module.exports = router
